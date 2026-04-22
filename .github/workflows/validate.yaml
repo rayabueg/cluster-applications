@@ -1,0 +1,25 @@
+name: Validate manifests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  kustomize-build:
+    name: kustomize build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cluster: [k8s-lab]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kustomize
+        run: |
+          curl -sSfL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" \
+            | bash -s -- /usr/local/bin
+
+      - name: Build ${{ matrix.cluster }}
+        run: kustomize build clusters/${{ matrix.cluster }} > /dev/null
