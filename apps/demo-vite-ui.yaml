@@ -20,7 +20,7 @@ spec:
     spec:
       project: default
       source:
-        # Manifests live in gitops-lab. Update repoURL to your fork if needed.
+        # Manifests live in cluster-addons (gitops-lab repo). Update repoURL to your fork if needed.
         repoURL: https://github.com/rayabueg/gitops-lab.git
         targetRevision: main
         path: clusters/k8s-lab/gateway

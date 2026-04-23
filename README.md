@@ -2,11 +2,11 @@
 
 This repo is the **source-of-truth for user-facing applications** deployed across clusters via Argo CD.
 
-It is intentionally separate from infrastructure and addons, which live in [`gitops-lab`](https://github.com/rayabueg/gitops-lab):
+It is intentionally separate from infrastructure and addons, which live in [`cluster-addons`](https://github.com/rayabueg/gitops-lab):
 
 | Repo | Owns |
 |---|---|
-| `gitops-lab` | Cluster infra — namespaces, CRDs, Envoy Gateway, cert-manager, DNS, Argo CD config |
+| `cluster-addons` | Cluster infra — namespaces, CRDs, Envoy Gateway, cert-manager, DNS, Argo CD config |
 | `cluster-applications` | Argo CD `Application` CRDs for team apps (this repo) |
 
 This repo is included as a **git submodule** inside [`k8s-lab`](https://github.com/rayabueg/k8s-lab) at `cluster-applications/`.
@@ -64,16 +64,16 @@ export KUBECONFIG=~/.kube/lima-k8s-lab
 kubectl apply -f bootstrap/argocd/root-app.yaml
 ```
 
-## Relationship to gitops-lab
+## Relationship to cluster-addons
 
-The `Application` manifests in this repo point at `gitops-lab` as their source:
+The `Application` manifests in this repo point at `cluster-addons` as their source:
 
 ```
-cluster-applications  →  Argo CD Application CRD  →  gitops-lab (k8s manifests)
+cluster-applications  →  Argo CD Application CRD  →  cluster-addons (k8s manifests)
 ```
 
 For example, `clusters/k8s-lab/demo-vite-ui-application.yaml` tells Argo CD to sync
-`clusters/k8s-lab/gateway/` from `gitops-lab`. The actual `Deployment`, `Service`, and
+`clusters/k8s-lab/gateway/` from `cluster-addons`. The actual `Deployment`, `Service`, and
 `HTTPRoute` for `demo-vite-ui` live there — only the pointer lives here.
 
 ## Contributing (submodule workflow)
