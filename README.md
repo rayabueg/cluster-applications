@@ -17,51 +17,41 @@ This repo is included as a **git submodule** inside [`k8s-lab`](https://github.c
 cluster-applications/
 ├── bootstrap/
 │   └── argocd/
-│       └── root-app.yaml                  # App-of-Apps — apply once to bootstrap
-├── apps/
-│   └── <app-name>/
-│       └── application.yaml               # Canonical Argo CD Application definition
-└── clusters/
-    └── <cluster-name>/
-        ├── kustomization.yaml             # Which apps run on this cluster
-        └── <app-name>-application.yaml    # Per-cluster copy (possibly with overrides)
+│       └── root-app.yaml   # Root Application pointing ArgoCD at apps/
+└── apps/
+    └── <app-name>.yaml     # One ApplicationSet per app — list generator controls which clusters run it
 ```
 
-> **Why copy instead of `../../` references?**  
-> Kustomize disallows path traversal outside the build root for security.  
-> Each cluster directory contains its own copy of the Application manifests so  
-> cluster-specific overrides (image tags, target namespaces) can be patched cleanly.
+There is no `clusters/` directory. Which clusters an app runs on is declared inside
+each ApplicationSet's `spec.generators[].list.elements` list — one entry per cluster.
+This mirrors the pattern used in `sdp-cluster-applications`.
 
 ## Adding a new cluster
 
-1. Create `clusters/<cluster-name>/kustomization.yaml` listing the app manifest files.
-2. Copy the relevant `apps/<app>/application.yaml` files into the cluster directory and update `destination.server` / image tags as needed.
-3. Apply the root app to that cluster:
+1. Register the cluster in ArgoCD (see ArgoCD docs for `argocd cluster add`).
+2. For each app that should run on the new cluster, add an entry to that app's `spec.generators[].list.elements`:
 
-```bash
-export KUBECONFIG=~/.kube/<cluster-name>
-kubectl apply -f bootstrap/argocd/root-app.yaml
+```yaml
+# apps/demo-vite-ui.yaml
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: k8s-lab
+            server: https://kubernetes.default.svc
+          - cluster: my-new-cluster           # add this
+            server: https://<api-server-url>  # add this
 ```
+
+3. Open a PR — CI validates YAML and ApplicationSet schemas.
 
 ## Adding a new app
 
-1. Create the canonical definition at `apps/<app-name>/application.yaml`.
-2. Copy it into each cluster directory where it should run:
+1. Create `apps/<app-name>.yaml` as an ArgoCD `ApplicationSet`.
+   Use `apps/demo-vite-ui.yaml` as a reference — copy it, update `metadata.name`,
+   `spec.template.spec.source`, and the `list.elements` for target clusters.
 
-```bash
-cp apps/<app-name>/application.yaml clusters/k8s-lab/<app-name>-application.yaml
-```
-
-3. Add the file to the cluster's `kustomization.yaml`:
-
-```yaml
-# clusters/k8s-lab/kustomization.yaml
-resources:
-  - demo-vite-ui-application.yaml
-  - <app-name>-application.yaml
-```
-
-4. Open a PR — CI will run `kustomize build clusters/<cluster>` to validate.
+2. Open a PR — CI will yamllint and schema-validate `apps/`.
 
 ## Deploying
 

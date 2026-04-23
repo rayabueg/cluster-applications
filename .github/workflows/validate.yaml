@@ -7,19 +7,34 @@ on:
       - main
 
 jobs:
-  kustomize-build:
-    name: kustomize build
+  yaml-lint:
+    name: yamllint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        cluster: [k8s-lab]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install kustomize
-        run: |
-          curl -sSfL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" \
-            | bash -s -- /usr/local/bin
+      - name: Install yamllint
+        run: pip install yamllint
 
-      - name: Build ${{ matrix.cluster }}
-        run: kustomize build clusters/${{ matrix.cluster }} > /dev/null
+      - name: Lint apps/
+        run: yamllint -d '{extends: relaxed, rules: {line-length: {max: 200}}}' apps/
+
+  schema-validate:
+    name: kubeconform (ApplicationSet CRDs)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        run: |
+          curl -sSfL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
+            | tar -xz -C /usr/local/bin
+
+      - name: Validate ApplicationSet schemas
+        # Uses the upstream ArgoCD CRD schema catalog
+        run: |
+          kubeconform \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argoproj.io/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            -summary \
+            apps/

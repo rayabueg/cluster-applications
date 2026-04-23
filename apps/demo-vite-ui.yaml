@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: demo-vite-ui
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  generators:
+    - list:
+        elements:
+          # Add an entry here for each cluster this app should run on.
+          # server: use https://kubernetes.default.svc for in-cluster ArgoCD,
+          #         or the registered cluster API URL for remote clusters.
+          - cluster: k8s-lab
+            server: https://kubernetes.default.svc
+  template:
+    metadata:
+      name: demo-vite-ui-{{cluster}}
+    spec:
+      project: default
+      source:
+        # Manifests live in gitops-lab. Update repoURL to your fork if needed.
+        repoURL: https://github.com/rayabueg/gitops-lab.git
+        targetRevision: main
+        path: clusters/k8s-lab/gateway
+        kustomize:
+          # Patch the image tag here for image promotion.
+          # CI updates this value via PR when a new image is built.
+          images:
+            - ghcr.io/rayabueg/demo-vite-ui:latest
+      destination:
+        server: '{{server}}'
+        namespace: envoy-gateway-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 3m
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/replicas

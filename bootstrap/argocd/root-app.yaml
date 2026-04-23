@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cluster-applications-k8s-lab
+  name: cluster-applications
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "0"
@@ -11,7 +11,9 @@ spec:
     # TODO: replace with your fork URL
     repoURL: https://github.com/rayabueg/cluster-applications.git
     targetRevision: main
-    path: clusters/k8s-lab
+    # ArgoCD applies every ApplicationSet YAML found directly in apps/.
+    # Each ApplicationSet's list generator controls which clusters it runs on.
+    path: apps
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
