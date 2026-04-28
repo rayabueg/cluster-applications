@@ -28,7 +28,7 @@ spec:
           # Patch the image tag here for image promotion.
           # CI updates this value via PR when a new image is built.
           images:
-            - ghcr.io/rayabueg/demo-vite-ui:latest
+            - ghcr.io/rayabueg/demo-vite-ui:0.2.0
       destination:
         server: '{{server}}'
         namespace: envoy-gateway-system
