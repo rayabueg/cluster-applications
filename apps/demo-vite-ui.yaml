@@ -23,7 +23,7 @@ spec:
         # Manifests live in cluster-addons (gitops-lab repo). Update repoURL to your fork if needed.
         repoURL: https://github.com/rayabueg/cluster-addons.git
         targetRevision: main
-        path: clusters/k8s-lab/gateway
+        path: clusters/k8s-lab/addons/envoy-gateway/gateway
         kustomize:
           # Patch the image tag here for image promotion.
           # CI updates this value via PR when a new image is built.
