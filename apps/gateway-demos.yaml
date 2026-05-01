@@ -19,7 +19,7 @@ spec:
       source:
         repoURL: https://github.com/rayabueg/cluster-applications.git
         targetRevision: main
-        path: gateway-demos
+        path: apps-envs/gateway-demos
       destination:
         server: '{{server}}'
         namespace: envoy-gateway-system

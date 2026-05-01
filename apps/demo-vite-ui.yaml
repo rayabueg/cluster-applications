@@ -22,7 +22,7 @@ spec:
       source:
         repoURL: https://github.com/rayabueg/cluster-applications.git
         targetRevision: main
-        path: demo-vite-ui
+        path: apps-envs/demo-vite-ui
         kustomize:
           # Patch the image tag here for image promotion.
           # CI updates this value via PR when a new image is built.

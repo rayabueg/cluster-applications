@@ -19,7 +19,7 @@ spec:
       source:
         repoURL: https://github.com/rayabueg/cluster-applications.git
         targetRevision: main
-        path: mesh-demo
+        path: apps-envs/mesh-demo
       destination:
         server: '{{server}}'
         namespace: mesh-demo
