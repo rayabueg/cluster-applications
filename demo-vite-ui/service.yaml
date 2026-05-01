@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-vite-ui
+  namespace: envoy-gateway-system
+spec:
+  selector:
+    app: demo-vite-ui
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

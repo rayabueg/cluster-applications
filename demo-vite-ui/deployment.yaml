@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-vite-ui
+  namespace: envoy-gateway-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-vite-ui
+  template:
+    metadata:
+      labels:
+        app: demo-vite-ui
+    spec:
+      containers:
+        - name: ui
+          image: ghcr.io/rayabueg/demo-vite-ui:0.2.0
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /vite/
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5

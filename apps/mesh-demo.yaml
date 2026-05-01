@@ -17,9 +17,9 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/rayabueg/cluster-addons.git
+        repoURL: https://github.com/rayabueg/cluster-applications.git
         targetRevision: main
-        path: clusters/k8s-lab/apps/mesh-demo
+        path: mesh-demo
       destination:
         server: '{{server}}'
         namespace: mesh-demo
